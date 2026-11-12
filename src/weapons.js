@@ -326,6 +326,10 @@ export class WeaponSystem {
     A[0] = A[1] = A[2] = A[3] = A[4] = A[5] = 0; this.showK = 0; this.fingerOpen = 0;
     if (d.type === 'gun') this._animGun(v, d, A, T, rk); else this._animKnife(v, d, A, T);
 
+    // 投掷手雷时主武器下沉让开
+    const nd = g.grenades ? g.grenades.dip() : 0;
+    if (nd > 0) { A[1] -= 0.22 * nd; A[3] -= 0.55 * nd; A[5] -= 0.2 * nd; }
+
     // 冲刺姿态
     const wantSprint = pl.sprinting && this.state === 'idle' ? 1 : 0;
     this.sprintK = damp(this.sprintK, wantSprint, 9, dt);

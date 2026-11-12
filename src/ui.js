@@ -14,7 +14,7 @@ export class UI {
     this.el = {};
     for (const id of ['hud', 'menu', 'pause', 'over', 'cross', 'hit', 'vig', 'lowhp', 'dmgdir', 'nums', 'scope', 'wave', 'left', 'score', 'combo', 'boss', 'bossbar', 'bossname',
       'feed', 'banner', 'hp', 'hpbar', 'armor', 'armorbar', 'perkbar', 'wname', 'mag', 'res', 'slots', 'perkpick', 'perkcards', 'wtabs', 'ktabs', 'skins', 'skin-title',
-      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'difficulty', 'diff-desc', 'loading', 'hint']) this.el[id] = $(id);
+      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'nades', 'difficulty', 'diff-desc', 'loading', 'hint']) this.el[id] = $(id);
     this.hitT = 0; this.pickT = 0; this.bannerT = 0; this.bannerDur = 1; this.comboT = 0;
     this.arcs = []; this.nums = [];
     for (let i = 0; i < 26; i++) { const d = document.createElement('div'); d.style.display = 'none'; this.el.nums.appendChild(d); this.nums.push({ d, life: 0, p: new THREE.Vector3(), vy: 0 }); }
@@ -106,6 +106,7 @@ export class UI {
       e.mag.textContent = a.mag; e.res.textContent = '/ ' + a.reserve; e.mag.className = a.mag <= a.max * 0.25 ? 'low' : '';
     } else { e.mag.textContent = '∞'; e.res.textContent = ''; e.mag.className = ''; }
   }
+  setGrenades(n) { this.el.nades.innerHTML = 'G ' + [0, 1, 2].map((i) => `<i class="${i < n ? '' : 'off'}"></i>`).join(''); }
   setScope(on) { this.el.scope.classList.toggle('on', on); this.el.cross.style.display = on ? 'none' : ''; }
   hitmarker(head, kill) { this.hitT = kill ? 0.32 : 0.18; this.el.hit.className = kill ? 'kill' : head ? 'head' : ''; }
   banner(text, dur = 2.2) { this.el.banner.textContent = text; this.bannerT = this.bannerDur = dur; }
