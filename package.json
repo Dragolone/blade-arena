@@ -1,0 +1,14 @@
+{
+  "name": "blade-arena",
+  "version": "1.0.0",
+  "private": true,
+  "description": "刀锋竞技场 —— 本地 FPS（three.js，全程序化资源）",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --format=iife --minify --outfile=dist/game.js",
+    "dev": "esbuild src/main.js --bundle --format=iife --outfile=dist/game.js --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.187.0"
+  }
+}

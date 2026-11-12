@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>刀锋竞技场 · BLADE ARENA</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="game"></div>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+  <div id="vig"></div><div id="lowhp"></div><div id="pick"></div>
+  <div id="scope"><div class="sc-ring"></div><i class="h"></i><i class="v"></i></div>
+  <div id="cross"><i></i><i></i><i></i><i></i><b></b></div>
+  <div id="hit"></div>
+  <div id="dmgdir"></div>
+  <div id="nums"></div>
+
+  <div id="top">
+    <div class="pill"><span class="lbl">波次</span><span id="wave">1</span></div>
+    <div class="pill"><span class="lbl">剩余敌人</span><span id="left">0</span></div>
+    <div class="pill gold"><span class="lbl">得分</span><span id="score">0</span></div>
+  </div>
+  <div id="combo"></div>
+  <div id="boss"><div id="bossname">毁灭者</div><div class="bar"><div id="bossbar"></div></div></div>
+  <div id="feed"></div>
+  <div id="banner"></div>
+
+  <div id="hpbox">
+    <div class="row"><span class="ico">✚</span><span id="hp">1000</span><div class="bar"><div id="hpbar"></div></div></div>
+    <div class="row small"><span class="ico">⛨</span><span id="armor">0</span><div class="bar"><div id="armorbar"></div></div></div>
+    <div id="perkbar"></div>
+  </div>
+  <div id="ammobox">
+    <div id="wname">AK-47</div>
+    <div><span id="mag">30</span><span id="res">/ 120</span></div>
+  </div>
+  <div id="slots"></div>
+  <div id="hint">F 检视　V 切换刀型　R 换弹　Q 上一把武器</div>
+
+  <div id="perkpick" class="hidden">
+    <h2>选择一项强化</h2>
+    <div id="perkcards"></div>
+    <p>按 <b>1</b> / <b>2</b> / <b>3</b> 选择</p>
+  </div>
+</div>
+
+<!-- ============ 主菜单 / 军械库 ============ -->
+<div id="menu">
+  <div class="panel left">
+    <h1>刀锋竞技场</h1>
+    <div class="sub">BLADE ARENA</div>
+    <button id="btn-start" class="big">开始游戏</button>
+    <div class="best">最高分 <b id="best">0</b>　最高波次 <b id="bestwave">0</b></div>
+    <h3>军械库</h3>
+    <div id="wtabs"></div>
+    <h3>设置</h3>
+    <label>鼠标灵敏度 <span id="sens-v">1.0</span><input id="sens" type="range" min="0.2" max="3" step="0.05" value="1"></label>
+    <label>音量 <span id="vol-v">60</span><input id="vol" type="range" min="0" max="100" step="1" value="60"></label>
+    <label>画质
+      <select id="quality"><option value="ultra">极高</option><option value="high">高（推荐）</option><option value="mid">中</option><option value="low">低</option></select>
+    </label>
+  </div>
+  <div class="panel right">
+    <div id="ktabs"></div>
+    <h3 id="skin-title">皮肤</h3>
+    <div id="skins"></div>
+  </div>
+  <div class="bottom">
+    <div class="keys">
+      <span><b>WASD</b> 移动</span><span><b>空格</b> 跳跃</span><span><b>Shift</b> 冲刺</span><span><b>Ctrl / C</b> 下蹲</span>
+      <span><b>左键</b> 开火 / 轻击</span><span><b>右键</b> 开镜 / 重刺</span><span><b>R</b> 换弹</span><span><b>F</b> 检视</span>
+      <span><b>1-4 / 滚轮 / Q</b> 切换武器</span><span><b>V</b> 切换刀型</span><span><b>Esc</b> 暂停</span>
+    </div>
+    <div class="tip">拖动鼠标旋转武器预览 · 滚轮缩放</div>
+  </div>
+</div>
+
+<div id="pause" class="overlay hidden">
+  <div class="box">
+    <h2>已暂停</h2>
+    <button id="btn-resume" class="big">继续游戏</button>
+    <button id="btn-quit">返回军械库</button>
+  </div>
+</div>
+
+<div id="over" class="overlay hidden">
+  <div class="box">
+    <h2 id="over-title">阵亡</h2>
+    <div id="stats"></div>
+    <button id="btn-again" class="big">再来一局</button>
+    <button id="btn-menu">返回军械库</button>
+  </div>
+</div>
+
+<div id="loading">加载中…</div>
+<script src="dist/game.js"></script>
+</body>
+</html>
