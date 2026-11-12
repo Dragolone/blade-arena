@@ -10,7 +10,8 @@ import { World } from './world.js';
 import { FX } from './fx.js';
 import { AudioSys } from './audio.js';
 import { Player } from './player.js';
-import { WeaponSystem, SLOTS, DEFS, KNIFE_NAMES, KNIFE_IDS } from './weapons.js';
+import { WeaponSystem, SLOTS, DEFS, KNIFE_IDS, knifeName } from './weapons.js';
+import { t, nm, setLang, detectLang } from './i18n.js';
 import { Enemies, ENEMY_TYPES } from './enemies.js';
 import { UI } from './ui.js';
 import { DIFFICULTY } from './difficulty.js';
@@ -19,18 +20,18 @@ import { Showcase } from './showcase.js';
 import { clamp, rand, pick } from './util.js';
 
 const PERKS = [
-  { id: 'dmg', icon: '💥', name: '穿甲弹芯', desc: '枪械伤害 +15%', max: 6 },
-  { id: 'rate', icon: '⚡', name: '轻量枪机', desc: '射速 +10%', max: 4 },
-  { id: 'reload', icon: '🔄', name: '快速换弹', desc: '换弹时间 -18%', max: 3 },
-  { id: 'mag', icon: '📦', name: '扩容弹匣', desc: '弹匣容量 +30%', max: 3 },
-  { id: 'recoil', icon: '🎯', name: '稳定握把', desc: '后坐力 -20%', max: 3 },
-  { id: 'head', icon: '☠️', name: '爆头专家', desc: '爆头伤害 +25%', max: 4 },
-  { id: 'knife', icon: '🗡️', name: '刀锋大师', desc: '刀伤害 +60%，刀杀回复 120 生命', max: 3 },
-  { id: 'hp', icon: '❤️', name: '生命强化', desc: '生命上限 +250 并立即回满', max: 4 },
-  { id: 'armor', icon: '🛡️', name: '战术护甲', desc: '每波开始获得 150 护甲', max: 2 },
-  { id: 'leech', icon: '🩸', name: '嗜血', desc: '每次击杀回复 40 生命', max: 3 },
-  { id: 'speed', icon: '👟', name: '肾上腺素', desc: '移动速度 +8%', max: 3 },
-  { id: 'boom', icon: '🧨', name: '连锁爆破', desc: '被击杀的敌人有 25% 几率爆炸', max: 3 },
+  { id: 'dmg', icon: '💥', name: '穿甲弹芯', desc: '枪械伤害 +15%', en: 'Armor-Piercing Rounds', descEn: 'Gun damage +15%', max: 6 },
+  { id: 'rate', icon: '⚡', name: '轻量枪机', desc: '射速 +10%', en: 'Lightweight Bolt', descEn: 'Fire rate +10%', max: 4 },
+  { id: 'reload', icon: '🔄', name: '快速换弹', desc: '换弹时间 -18%', en: 'Fast Hands', descEn: 'Reload time -18%', max: 3 },
+  { id: 'mag', icon: '📦', name: '扩容弹匣', desc: '弹匣容量 +30%', en: 'Extended Mags', descEn: 'Magazine size +30%', max: 3 },
+  { id: 'recoil', icon: '🎯', name: '稳定握把', desc: '后坐力 -20%', en: 'Stable Grip', descEn: 'Recoil -20%', max: 3 },
+  { id: 'head', icon: '☠️', name: '爆头专家', desc: '爆头伤害 +25%', en: 'Headhunter', descEn: 'Headshot damage +25%', max: 4 },
+  { id: 'knife', icon: '🗡️', name: '刀锋大师', desc: '刀伤害 +60%，刀杀回复 120 生命', en: 'Blade Master', descEn: 'Knife damage +60%, knife kills heal 120', max: 3 },
+  { id: 'hp', icon: '❤️', name: '生命强化', desc: '生命上限 +250 并立即回满', en: 'Vitality', descEn: 'Max health +250 and a full heal', max: 4 },
+  { id: 'armor', icon: '🛡️', name: '战术护甲', desc: '每波开始获得 150 护甲', en: 'Tactical Armor', descEn: 'Gain 150 armor at the start of each wave', max: 2 },
+  { id: 'leech', icon: '🩸', name: '嗜血', desc: '每次击杀回复 40 生命', en: 'Bloodthirst', descEn: 'Each kill heals 40', max: 3 },
+  { id: 'speed', icon: '👟', name: '肾上腺素', desc: '移动速度 +8%', en: 'Adrenaline', descEn: 'Move speed +8%', max: 3 },
+  { id: 'boom', icon: '🧨', name: '连锁爆破', desc: '被击杀的敌人有 25% 几率爆炸', en: 'Chain Reaction', descEn: 'Killed enemies have a 25% chance to explode', max: 3 },
 ];
 const KNIVES = KNIFE_IDS;
 
@@ -52,7 +53,8 @@ function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } ca
 class Game {
   constructor() {
     this.debug = new URLSearchParams(location.search).has('debug');
-    this.settings = load('ba_settings', { sens: 1, volume: 0.6, quality: 'high', difficulty: 'casual' });
+    this.settings = load('ba_settings', { sens: 1, volume: 0.6, quality: 'high', difficulty: 'casual', lang: detectLang() });
+    setLang(this.settings.lang);
     if (!DIFFICULTY[this.settings.difficulty]) this.settings.difficulty = 'casual';
     this.diff = DIFFICULTY[this.settings.difficulty];
     const lo = load('ba_loadout', {});
@@ -184,7 +186,7 @@ class Game {
   }
   cycleKnife() {
     const lo = this.loadout; lo.knife = KNIVES[(KNIVES.indexOf(lo.knife) + 1) % KNIVES.length]; this.saveLoadout();
-    this.ui.feed(`近战武器 → <b>${KNIFE_NAMES[lo.knife]}</b>`, 'sys');
+    this.ui.feed(t('knifeSwitch', { k: knifeName(lo.knife) }), 'sys');
     if (this.weapons.cur === 'knife') { this.weapons.state = 'holster'; this.weapons.equip('knife'); } else this.ui.setWeapon(this.weapons);
   }
   after(sec, fn) { this.timers.push({ t: sec, fn }); }
@@ -209,7 +211,7 @@ class Game {
     this.state = 'playing'; this.ui.show('hud'); this.ui.cache = {};
     this.lock();
     this.phase = 'countdown';
-    this.ui.banner(`准备战斗 · ${D.name}`, 2);
+    this.ui.banner(t('ready', { d: nm(D) }), 2);
     this.after(2.2, () => this.nextWave());
     this.clock = performance.now();
   }
@@ -228,7 +230,7 @@ class Game {
     }
     if (boss) q.splice(2, 0, 'boss');
     this.spawnQueue = q; this.spawnT = 0.6; this.phase = 'fight';
-    this.ui.banner(boss ? `第 ${n} 波 · BOSS 来袭` : `第 ${n} 波`, 2.4);
+    this.ui.banner(t(boss ? 'waveBoss' : 'waveN', { n }), 2.4);
     if (boss) this.audio.boss(); else this.audio.wave();
   }
   spawnAt(type, x, z) {
@@ -245,7 +247,7 @@ class Game {
   }
   _waveCleared() {
     this.phase = 'clear';
-    this.ui.banner('波次清除', 1.8); this.audio.perk();
+    this.ui.banner(t('waveClear'), 1.8); this.audio.perk();
     this.stats.score += 200 + this.wave * 50;
     this.player.heal(150);
     this.after(1.6, () => this.offerPerks());
@@ -264,8 +266,8 @@ class Game {
     if (p.id === 'hp') { this.player.maxHp += 250; this.player.hp = this.player.maxHp; }
     if (p.id === 'mag') this.weapons.refill();
     this.perkOptions = null; this.ui.showPerks(null); this.ui.setPerks(this.perks, PERKS);
-    this.audio.perk(); this.ui.feed(`获得强化 <b>${p.icon} ${p.name}</b>`, 'sys');
-    this.phase = 'countdown'; this.ui.banner('下一波即将到来', 1.8);
+    this.audio.perk(); this.ui.feed(t('perkGot', { p: `${p.icon} ${nm(p)}` }), 'sys');
+    this.phase = 'countdown'; this.ui.banner(t('nextWave'), 1.8);
     this.after(2.4, () => this.nextWave());
   }
   onPlayerDead() {
@@ -345,7 +347,7 @@ class Game {
       const back = heavy && Math.sin(e.yaw) * d.x + Math.cos(e.yaw) * d.z > 0.35 && !e.T.boss;
       let dmg = (heavy ? def.stabDmg : def.slashDmg) * (1 + 0.6 * (this.perks.knife || 0));
       if (back) dmg = Math.max(dmg * 3, e.hp);
-      const killed = this.enemies.damage(e, dmg, { head: false, knife: true, back, point: pt, dir: d, force: heavy ? 7 : 4, weapon: KNIFE_NAMES[this.loadout.knife] });
+      const killed = this.enemies.damage(e, dmg, { head: false, knife: true, back, point: pt, dir: d, force: heavy ? 7 : 4, weapon: knifeName(this.loadout.knife) });
       this.ui.hitmarker(back, killed); this.ui.dmgNumber(pt, dmg, false, back);
       this.audio.stab(); this.shake(heavy ? 0.16 : 0.07); this.stats.hits++;
       return true;
@@ -384,8 +386,8 @@ class Game {
     const mult = 1 + (this.combo - 1) * 0.25;
     const pts = Math.round(T.score * (info.head ? 1.5 : 1) * (info.knife ? 2 : 1) * (info.back ? 1.5 : 1) * mult);
     st.score += pts;
-    const tag = info.back ? '背刺' : info.head ? '爆头' : info.knife ? '刀杀' : info.explosion ? '炸飞' : '击杀';
-    this.ui.feed(`${tag} · ${T.name} <b>+${pts}</b>`, info.head ? 'head' : info.knife ? 'knife' : '');
+    const tag = t(info.back ? 'tagBack' : info.head ? 'tagHead' : info.knife ? 'tagKnife' : info.explosion ? 'tagBoom' : 'tagKill');
+    this.ui.feed(`${tag} · ${nm(T)} <b>+${pts}</b>`, info.head ? 'head' : info.knife ? 'knife' : '');
     this.ui.combo(this.combo); this.audio.kill();
     if (this.perks.leech) pl.heal(40 * this.perks.leech);
     if (info.knife && this.perks.knife) pl.heal(120);
@@ -402,7 +404,7 @@ class Game {
   win() {
     this.won = true; this.phase = 'won'; this.spawnQueue.length = 0; this.ui.showPerks(null); this.perkOptions = null;
     this.weapons.setScope(false); this.weapons.wantScope = false;
-    this.stats.score += 5000; this.ui.banner('BOSS 已击败 · 胜利', 3.2); this.audio.perk(); this.ui.feed('通关奖励 <b>+5000</b>', 'sys');
+    this.stats.score += 5000; this.ui.banner(t('bossDown'), 3.2); this.audio.perk(); this.ui.feed(t('winBonus'), 'sys');
     let i = 0;
     for (const e of this.enemies.list.slice()) if (!e.T.boss) this.after(0.3 + 0.13 * i++, () => this.enemies.damage(e, 1e7, { explosion: true, force: 9, weapon: '清场' }));
     this.after(3.4, () => {
@@ -450,9 +452,9 @@ class Game {
   }
   _collect(p) {
     const pl = this.player, m = p.m, c = m.material.color;
-    if (p.type === 'health') { pl.heal(200); this.ui.feed('生命 <b>+200</b>', 'sys'); }
-    else if (p.type === 'ammo') { this.weapons.addAmmo(0.35); this.ui.setWeapon(this.weapons); this.ui.feed('弹药补给', 'sys'); }
-    else { pl.armor = Math.min(300, pl.armor + 100); this.ui.feed('护甲 <b>+100</b>', 'sys'); }
+    if (p.type === 'health') { pl.heal(200); this.ui.feed(t('pickHealth'), 'sys'); }
+    else if (p.type === 'ammo') { this.weapons.addAmmo(0.35); this.ui.setWeapon(this.weapons); this.ui.feed(t('pickAmmo'), 'sys'); }
+    else { pl.armor = Math.min(300, pl.armor + 100); this.ui.feed(t('pickArmor'), 'sys'); }
     this.audio.pickup(); this.ui.pickupFlash(p.type);
     this.fx.burst(m.position.x, m.position.y, m.position.z, 0, 0.6, 0, 16, [c.r, c.g, c.b], 3.5, 0.4, 0.06);
   }

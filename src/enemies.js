@@ -2,12 +2,13 @@
 import * as THREE from 'three';
 import { rand, clamp, damp, pick, lerp } from './util.js';
 import { HALF } from './world.js';
+import { t } from './i18n.js';
 
 export const ENEMY_TYPES = {
-  grunt: { name: '机械步兵', hp: 100, speed: 3.3, scale: 1, body: 0x39404b, accent: [3.4, 0.7, 0.2], bolt: 0xff6a2a, score: 100, ranged: true, range: [8, 26], fireDelay: [1.2, 2.2], burst: 1, burstGap: 0.1, boltDmg: 9, boltSpeed: 30, spread: 0.035 },
-  rusher: { name: '突袭者', hp: 60, speed: 6.3, scale: 0.92, body: 0x4a1f24, accent: [4, 0.25, 0.3], score: 120, melee: true, meleeDmg: 13 },
-  heavy: { name: '重装机兵', hp: 420, speed: 2.1, scale: 1.32, body: 0x4b4a33, accent: [3.2, 2.4, 0.3], bolt: 0xffd040, score: 300, ranged: true, range: [6, 24], fireDelay: [2.2, 3.4], burst: 5, burstGap: 0.12, boltDmg: 8, boltSpeed: 27, spread: 0.06 },
-  boss: { name: '毁灭者', hp: 3200, speed: 2.5, scale: 2.3, body: 0x17181c, accent: [3.2, 0.5, 4.2], bolt: 0xc060ff, score: 2500, ranged: true, boss: true, range: [0, 40], fireDelay: [1.6, 2.4], burst: 1, burstGap: 0.085, boltDmg: 11, boltSpeed: 26, spread: 0.03, meleeDmg: 30 },
+  grunt: { name: '机械步兵', en: 'Robot Infantry', hp: 100, speed: 3.3, scale: 1, body: 0x39404b, accent: [3.4, 0.7, 0.2], bolt: 0xff6a2a, score: 100, ranged: true, range: [8, 26], fireDelay: [1.2, 2.2], burst: 1, burstGap: 0.1, boltDmg: 9, boltSpeed: 30, spread: 0.035 },
+  rusher: { name: '突袭者', en: 'Rusher', hp: 60, speed: 6.3, scale: 0.92, body: 0x4a1f24, accent: [4, 0.25, 0.3], score: 120, melee: true, meleeDmg: 13 },
+  heavy: { name: '重装机兵', en: 'Heavy Mech', hp: 420, speed: 2.1, scale: 1.32, body: 0x4b4a33, accent: [3.2, 2.4, 0.3], bolt: 0xffd040, score: 300, ranged: true, range: [6, 24], fireDelay: [2.2, 3.4], burst: 5, burstGap: 0.12, boltDmg: 8, boltSpeed: 27, spread: 0.06 },
+  boss: { name: '毁灭者', en: 'Destroyer', hp: 3200, speed: 2.5, scale: 2.3, body: 0x17181c, accent: [3.2, 0.5, 4.2], bolt: 0xc060ff, score: 2500, ranged: true, boss: true, range: [0, 40], fireDelay: [1.6, 2.4], burst: 1, burstGap: 0.085, boltDmg: 11, boltSpeed: 26, spread: 0.03, meleeDmg: 30 },
 };
 
 const G = {}; // 共享几何
@@ -283,7 +284,7 @@ export class Enemies {
     if ((frac < 0.66 && e.summoned === 0) || (frac < 0.33 && e.summoned === 1)) {
       e.summoned++;
       for (let i = 0; i < 3; i++) { const a = e.yaw + (i - 1) * 2.1 + Math.PI; g.spawnAt('rusher', e.x + Math.sin(a) * 3, e.z + Math.cos(a) * 3); }
-      g.ui.banner('毁灭者召唤了突袭者！', 1.6);
+      g.ui.banner(t('bossSummon'), 1.6);
     }
     if (e.slamT > 0) {
       e.slamT -= dt;
@@ -310,7 +311,7 @@ export class Enemies {
     e.fireT -= dt;
     if (e.fireT <= 0) {
       e.fireT = rand(T.fireDelay[0], T.fireDelay[1]);
-      if (dist < 9 && Math.random() < 0.75) { e.slamT = 0.9; g.sfx3d('charge', e.x, 2, e.z); g.ui.banner('震荡波！跳起来躲避', 1.1); }
+      if (dist < 9 && Math.random() < 0.75) { e.slamT = 0.9; g.sfx3d('charge', e.x, 2, e.z); g.ui.banner(t('bossSlam'), 1.1); }
       else { e.pattern = Math.random() < 0.5 ? 0 : 1; e.chargeT = 0.55; g.sfx3d('charge', e.x, 2, e.z); }
     }
   }
