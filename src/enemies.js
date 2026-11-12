@@ -93,10 +93,10 @@ export class Enemies {
 
   spawn(type, x, z, wave = 1) {
     const T = ENEMY_TYPES[type], r = buildRobot(type);
-    const hpMul = 1 + (wave - 1) * 0.09;
+    const D = this.game.diff, hpMul = (1 + (wave - 1) * 0.09) * D.enemyHp;
     const e = Object.assign(r, {
       type, T, x, z, y: 0, vx: 0, vz: 0, yaw: Math.atan2(-x, -z),
-      hp: T.hp * hpMul, maxHp: T.hp * hpMul, dmgMul: 1 + (wave - 1) * 0.045, speed: T.speed * (1 + Math.min(wave, 14) * 0.012) * rand(0.92, 1.08),
+      hp: T.hp * hpMul, maxHp: T.hp * hpMul, dmgMul: (1 + (wave - 1) * 0.045) * D.enemyDmg, speed: T.speed * (1 + Math.min(wave, 14) * 0.012) * rand(0.92, 1.08),
       dead: false, spawnT: 0.7, flash: 0, walk: rand(6), los: false, losT: rand(0.2),
       fireT: rand(0.6, 1.6), chargeT: 0, burstLeft: 0, burstT: 0, strafe: Math.random() < 0.5 ? 1 : -1, strafeT: rand(1, 2.5),
       atkT: 0, atkCd: 0, didHit: false, radius: 0.42 * T.scale, pattern: 0, summoned: 0, slamT: 0, aimPitch: 0,

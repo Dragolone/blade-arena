@@ -97,6 +97,7 @@ button.big:hover { filter: brightness(1.12); transform: translateY(-1px); }
 #menu h1 { font-size: 38px; letter-spacing: 6px; margin: 0; background: linear-gradient(90deg, #ffd24a, #ff5fa2 60%, #8a6bff); -webkit-background-clip: text; background-clip: text; color: transparent; }
 #menu .sub { letter-spacing: 9px; font-size: 12px; opacity: 0.6; margin: 4px 0 20px; }
 #menu h3 { font-size: 12px; letter-spacing: 4px; opacity: 0.55; margin: 22px 0 10px; font-weight: 600; }
+.diffdesc { font-size: 12px; opacity: 0.55; margin: -4px 0 6px; text-align: right; }
 .best { margin-top: 12px; font-size: 13px; opacity: 0.8; text-align: center; } .best b { color: var(--amber); }
 #wtabs { display: flex; flex-direction: column; gap: 6px; }
 #wtabs button, #ktabs button { text-align: left; display: flex; justify-content: space-between; align-items: center; }

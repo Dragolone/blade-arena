@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { GUN_SKINS, KNIFE_SKINS, RARITY, skinThumb, findSkin } from './skins.js';
 import { SLOTS, DEFS, KNIFE_NAMES } from './weapons.js';
 import { clamp } from './util.js';
+import { DIFFICULTY } from './difficulty.js';
 
 const $ = (id) => document.getElementById(id);
 const WEAPON_TABS = [['ak', 'AK-47'], ['deagle', '沙漠之鹰'], ['awp', 'AWP'], ['knife', '近战刀']];
@@ -13,7 +14,7 @@ export class UI {
     this.el = {};
     for (const id of ['hud', 'menu', 'pause', 'over', 'cross', 'hit', 'vig', 'lowhp', 'dmgdir', 'nums', 'scope', 'wave', 'left', 'score', 'combo', 'boss', 'bossbar', 'bossname',
       'feed', 'banner', 'hp', 'hpbar', 'armor', 'armorbar', 'perkbar', 'wname', 'mag', 'res', 'slots', 'perkpick', 'perkcards', 'wtabs', 'ktabs', 'skins', 'skin-title',
-      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'loading', 'hint']) this.el[id] = $(id);
+      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'difficulty', 'diff-desc', 'loading', 'hint']) this.el[id] = $(id);
     this.hitT = 0; this.pickT = 0; this.bannerT = 0; this.bannerDur = 1; this.comboT = 0;
     this.arcs = []; this.nums = [];
     for (let i = 0; i < 26; i++) { const d = document.createElement('div'); d.style.display = 'none'; this.el.nums.appendChild(d); this.nums.push({ d, life: 0, p: new THREE.Vector3(), vy: 0 }); }
@@ -38,6 +39,9 @@ export class UI {
     e.sens.oninput = () => { s.sens = +e.sens.value; e['sens-v'].textContent = s.sens.toFixed(2); g.saveSettings(); };
     e.vol.oninput = () => { s.volume = e.vol.value / 100; e['vol-v'].textContent = e.vol.value; g.audio.setVolume(s.volume); g.saveSettings(); };
     e.quality.onchange = () => { s.quality = e.quality.value; g.applyQuality(); g.saveSettings(); };
+    const showDiff = () => { e['diff-desc'].textContent = DIFFICULTY[s.difficulty].desc; };
+    e.difficulty.value = s.difficulty; showDiff();
+    e.difficulty.onchange = () => { s.difficulty = e.difficulty.value; showDiff(); g.saveSettings(); };
   }
 
   /* ---------------- 军械库 ---------------- */

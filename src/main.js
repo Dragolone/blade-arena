@@ -13,6 +13,7 @@ import { Player } from './player.js';
 import { WeaponSystem, SLOTS, DEFS, KNIFE_NAMES } from './weapons.js';
 import { Enemies, ENEMY_TYPES } from './enemies.js';
 import { UI } from './ui.js';
+import { DIFFICULTY } from './difficulty.js';
 import { Showcase } from './showcase.js';
 import { clamp, rand, pick } from './util.js';
 
@@ -50,7 +51,9 @@ function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } ca
 class Game {
   constructor() {
     this.debug = new URLSearchParams(location.search).has('debug');
-    this.settings = load('ba_settings', { sens: 1, volume: 0.6, quality: 'high' });
+    this.settings = load('ba_settings', { sens: 1, volume: 0.6, quality: 'high', difficulty: 'casual' });
+    if (!DIFFICULTY[this.settings.difficulty]) this.settings.difficulty = 'casual';
+    this.diff = DIFFICULTY[this.settings.difficulty];
     const lo = load('ba_loadout', {});
     this.loadout = { knife: lo.knife || 'butterfly', skins: Object.assign({ ak: 'redline', deagle: 'gold', awp: 'dragon', butterfly: 'fade', karambit: 'doppler', m9: 'tiger' }, lo.skins || {}) };
     this.best = load('ba_best', { score: 0, wave: 0 });
@@ -194,15 +197,16 @@ class Game {
   startGame() {
     this.audio.init();
     this.enemies.clear(); this.clearPickups(); this.timers.length = 0;
-    this.perks = {}; for (const p of PERKS) this.perks[p.id] = p.max; // 所有强化开局即满级
+    const D = (this.diff = DIFFICULTY[this.settings.difficulty]);
+    this.perks = {}; if (D.maxPerks) for (const p of PERKS) this.perks[p.id] = p.max; // 爽玩：所有强化开局即满级
     this.ui.setPerks(this.perks, PERKS); this.ui.showPerks(null); this.perkOptions = null; this.won = false;
-    this.player.reset(); this.player.maxHp += 250 * this.perks.hp; this.player.hp = this.player.maxHp; this.weapons.resetAmmo(); this.weapons.equip('ak', true);
+    this.player.reset(); this.player.maxHp = D.hp + 250 * (this.perks.hp || 0); this.player.hp = this.player.maxHp; this.weapons.resetAmmo(); this.weapons.equip('ak', true);
     this.stats = { score: 0, kills: 0, heads: 0, knifeKills: 0, shots: 0, hits: 0, wave: 0 };
     this.wave = 0; this.combo = 0; this.spawnQueue = []; this.world.resetBarrels();
     this.state = 'playing'; this.ui.show('hud'); this.ui.cache = {};
     this.lock();
     this.phase = 'countdown';
-    this.ui.banner('准备战斗', 2);
+    this.ui.banner(`准备战斗 · ${D.name}`, 2);
     this.after(2.2, () => this.nextWave());
     this.clock = performance.now();
   }

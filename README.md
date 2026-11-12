@@ -46,7 +46,15 @@ If the game stutters, lower the quality setting (**画质**) at the bottom of th
 
 Wave survival over 5 waves. Defeat the boss on wave 5 to win.
 
-The current tuning is deliberately generous: base health is 1000 and all 12 perks start at maximum level, which raises the actual health cap to 2000. For more of a challenge, change how perks are initialised in `startGame()` in `src/main.js`, and `maxHp` in `src/player.js`.
+Pick a difficulty (**难度**) in the settings on the left of the main menu:
+
+| Difficulty | Perks | Enemies |
+| --- | --- | --- |
+| Casual (爽玩, default) | All 12 perks at max level from the start, so health is 2000 | Normal damage |
+| Normal (普通) | Choose one perk card after each wave | Damage ×4 |
+| Hard (困难) | Choose one perk card after each wave | Health ×1.35, damage ×7 |
+
+Base health is 1000 on every difficulty. The tiers are defined in `src/difficulty.js` if you want to tune them.
 
 ## How it works
 
