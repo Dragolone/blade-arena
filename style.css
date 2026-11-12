@@ -106,16 +106,17 @@ button.big:hover { filter: brightness(1.12); transform: translateY(-1px); }
 #wtabs button, #ktabs button { text-align: left; display: flex; justify-content: space-between; align-items: center; }
 #wtabs button.on, #ktabs button.on { border-color: var(--amber); background: rgba(255, 184, 74, 0.14); }
 #wtabs button small { opacity: 0.6; font-size: 12px; }
-#ktabs { display: flex; gap: 6px; margin-bottom: 4px; } #ktabs button { flex: 1; justify-content: center; padding: 9px 4px; font-size: 14px; }
+#ktabs { display: flex; gap: 6px; margin-bottom: 4px; } #ktabs button { flex: 1; justify-content: center; padding: 9px 4px; font-size: 14px; line-height: 1.2; text-align: center; }
 #menu label { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin: 10px 0; gap: 8px; }
 #menu label span { color: var(--amber); min-width: 30px; text-align: right; flex: 1; }
+#menu label span.lt { color: inherit; min-width: 0; text-align: left; flex: none; white-space: nowrap; }
 #menu input[type=range] { width: 130px; accent-color: #ffb84a; }
 #menu select { background: #1a1d25; color: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; }
 #skins { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .skin { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; background: rgba(255, 255, 255, 0.04); transition: all 0.12s; position: relative; }
 .skin:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.4); }
 .skin.on { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), 0 4px 20px rgba(255, 184, 74, 0.25); }
-.skin.on:after { content: "已装备"; position: absolute; top: 5px; right: 5px; font-size: 10px; background: var(--amber); color: #1a0f00; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+.skin.on:after { content: attr(data-eq); position: absolute; top: 5px; right: 5px; font-size: 10px; background: var(--amber); color: #1a0f00; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
 .skin .th { height: 62px; background-size: cover; background-position: center; background-color: #2a2d33; }
 .skin .th.stock { background: linear-gradient(135deg, #3a3d44, #1c1e22 50%, #6a4a22); }
 .skin .nm { padding: 6px 8px 2px; font-size: 13px; font-weight: 700; }

@@ -19,12 +19,12 @@
   <div id="nums"></div>
 
   <div id="top">
-    <div class="pill"><span class="lbl">波次</span><span id="wave">1</span></div>
-    <div class="pill"><span class="lbl">剩余敌人</span><span id="left">0</span></div>
-    <div class="pill gold"><span class="lbl">得分</span><span id="score">0</span></div>
+    <div class="pill"><span class="lbl" data-i18n="wave">波次</span><span id="wave">1</span></div>
+    <div class="pill"><span class="lbl" data-i18n="enemiesLeft">剩余敌人</span><span id="left">0</span></div>
+    <div class="pill gold"><span class="lbl" data-i18n="score">得分</span><span id="score">0</span></div>
   </div>
   <div id="combo"></div>
-  <div id="boss"><div id="bossname">毁灭者</div><div class="bar"><div id="bossbar"></div></div></div>
+  <div id="boss"><div id="bossname"></div><div class="bar"><div id="bossbar"></div></div></div>
   <div id="feed"></div>
   <div id="banner"></div>
 
@@ -39,68 +39,67 @@
     <div id="nades"></div>
   </div>
   <div id="slots"></div>
-  <div id="hint">F 检视　G 手雷　V 切换刀型　R 换弹　Q 上一把武器</div>
+  <div id="hint" data-i18n="hint"></div>
 
   <div id="perkpick" class="hidden">
-    <h2>选择一项强化</h2>
+    <h2 data-i18n="perkTitle"></h2>
     <div id="perkcards"></div>
-    <p>按 <b>1</b> / <b>2</b> / <b>3</b> 选择</p>
+    <p data-i18n-html="perkKeys"></p>
   </div>
 </div>
 
 <!-- ============ 主菜单 / 军械库 ============ -->
 <div id="menu">
   <div class="panel left">
-    <h1>刀锋竞技场</h1>
-    <div class="sub">BLADE ARENA</div>
-    <button id="btn-start" class="big">开始游戏</button>
-    <div class="best">最高分 <b id="best">0</b>　最高波次 <b id="bestwave">0</b></div>
-    <h3>军械库</h3>
+    <h1 data-i18n="title">刀锋竞技场</h1>
+    <div class="sub" data-i18n="subtitle">BLADE ARENA</div>
+    <button id="btn-start" class="big" data-i18n="start">开始游戏</button>
+    <div class="best"><span data-i18n="bestScore">最高分</span> <b id="best">0</b>　<span data-i18n="bestWave">最高波次</span> <b id="bestwave">0</b></div>
+    <h3 data-i18n="armory">军械库</h3>
     <div id="wtabs"></div>
-    <h3>设置</h3>
-    <label>鼠标灵敏度 <span id="sens-v">1.0</span><input id="sens" type="range" min="0.2" max="3" step="0.05" value="1"></label>
-    <label>音量 <span id="vol-v">60</span><input id="vol" type="range" min="0" max="100" step="1" value="60"></label>
-    <label>难度
-      <select id="difficulty"><option value="casual">爽玩</option><option value="normal">普通</option><option value="hard">困难</option></select>
+    <h3 data-i18n="settings">设置</h3>
+    <label><span class="lt" data-i18n="sens">鼠标灵敏度</span> <span id="sens-v">1.0</span><input id="sens" type="range" min="0.2" max="3" step="0.05" value="1"></label>
+    <label><span class="lt" data-i18n="volume">音量</span> <span id="vol-v">60</span><input id="vol" type="range" min="0" max="100" step="1" value="60"></label>
+    <label><span class="lt">语言 / Language</span>
+      <select id="lang"><option value="zh">中文</option><option value="en">English</option></select>
+    </label>
+    <label><span class="lt" data-i18n="difficulty">难度</span>
+      <select id="difficulty"><option value="casual"></option><option value="normal"></option><option value="hard"></option></select>
     </label>
     <div id="diff-desc" class="diffdesc"></div>
-    <label>画质
-      <select id="quality"><option value="ultra">极高</option><option value="high">高（推荐）</option><option value="mid">中</option><option value="low">低</option></select>
+    <label><span class="lt" data-i18n="quality">画质</span>
+      <select id="quality"><option value="ultra" data-i18n="qUltra"></option><option value="high" data-i18n="qHigh"></option><option value="mid" data-i18n="qMid"></option><option value="low" data-i18n="qLow"></option></select>
     </label>
   </div>
   <div class="panel right">
     <div id="ktabs"></div>
-    <h3 id="skin-title">皮肤</h3>
+    <h3 id="skin-title"></h3>
     <div id="skins"></div>
   </div>
   <div class="bottom">
-    <div class="keys">
-      <span><b>WASD</b> 移动</span><span><b>空格</b> 跳跃</span><span><b>Shift</b> 冲刺</span><span><b>Ctrl / C</b> 下蹲</span>
-      <span><b>左键</b> 开火 / 轻击</span><span><b>右键</b> 开镜 / 重刺</span><span><b>R</b> 换弹</span><span><b>F</b> 检视</span>
-      <span><b>1-4 / 滚轮 / Q</b> 切换武器</span><span><b>G</b> 手雷</span><span><b>V</b> 切换刀型</span><span><b>Esc</b> 暂停</span>
-    </div>
-    <div class="tip">拖动鼠标旋转武器预览 · 滚轮缩放</div>
+    <div class="keys" data-i18n-html="keys"></div>
+    <div class="tip" data-i18n="tip"></div>
   </div>
 </div>
 
 <div id="pause" class="overlay hidden">
   <div class="box">
-    <h2>已暂停</h2>
-    <button id="btn-resume" class="big">继续游戏</button>
-    <button id="btn-quit">返回军械库</button>
+    <h2 data-i18n="paused"></h2>
+    <button id="btn-resume" class="big" data-i18n="resume"></button>
+    <button id="btn-quit" data-i18n="toArmory"></button>
   </div>
 </div>
 
 <div id="over" class="overlay hidden">
   <div class="box">
-    <h2 id="over-title">阵亡</h2>
+    <h2 id="over-title"></h2>
     <div id="stats"></div>
-    <button id="btn-again" class="big">再来一局</button>
-    <button id="btn-menu">返回军械库</button>
+    <button id="btn-again" class="big" data-i18n="again"></button>
+    <button id="btn-menu" data-i18n="toArmory"></button>
   </div>
 </div>
 
-<div id="loading">加载中…</div>
+<div id="loading">加载中 · Loading…</div>
 <script src="dist/game.js"></script>
 </body>
 </html>

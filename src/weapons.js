@@ -2,10 +2,15 @@
 import * as THREE from 'three';
 import { BUILDERS, buildHand, KARAMBIT_RING, BFLY_PIN } from './models.js';
 import { kf, kfv, clamp, lerp, damp, rand, smooth, easeOut, easeOutBack, PI, TAU } from './util.js';
+import { nm } from './i18n.js';
 
 export const SLOTS = ['ak', 'deagle', 'knife', 'awp'];
-export const KNIFE_NAMES = { butterfly: '蝴蝶刀', karambit: '爪子刀', m9: 'M9 刺刀', flip: '折叠刀' };
-export const KNIFE_IDS = Object.keys(KNIFE_NAMES);
+export const KNIVES = {
+  butterfly: { name: '蝴蝶刀', en: 'Butterfly Knife' }, karambit: { name: '爪子刀', en: 'Karambit' },
+  m9: { name: 'M9 刺刀', en: 'M9 Bayonet' }, flip: { name: '折叠刀', en: 'Flip Knife' },
+};
+export const KNIFE_IDS = Object.keys(KNIVES);
+export const knifeName = (id) => nm(KNIVES[id]);
 export const DEFS = {
   ak: {
     name: 'AK-47', type: 'gun', auto: true, rpm: 600, dmg: 34, headMul: 4, mag: 30, reserve: 120, reloadTime: 2.4, refillAt: 1.35, drawTime: 0.6, inspectTime: 4.4,
@@ -13,11 +18,11 @@ export const DEFS = {
     sfx: 'rifle', tracer: 0xffd28a, pos: [0.2, -0.21, -0.47], rot: [0, 0, 0], moveMul: 0.92, flash: 1,
   },
   deagle: {
-    name: '沙漠之鹰', type: 'gun', auto: false, rpm: 270, dmg: 62, headMul: 3.4, mag: 7, reserve: 35, reloadTime: 2.1, refillAt: 1.2, drawTime: 0.45, inspectTime: 4.0,
+    name: '沙漠之鹰', en: 'Desert Eagle', type: 'gun', auto: false, rpm: 270, dmg: 62, headMul: 3.4, mag: 7, reserve: 35, reloadTime: 2.1, refillAt: 1.2, drawTime: 0.45, inspectTime: 4.0,
     recoilUp: 0.05, recoilSide: 0.012, kick: 0.05, kickRot: 0.32, spread: { base: 0.002, move: 0.03, air: 0.08, shot: 0.022, max: 0.05 },
     sfx: 'pistol', tracer: 0xffe6b0, pos: [0.19, -0.165, -0.5], rot: [0, 0, 0], moveMul: 1.0, flash: 1.2,
   },
-  knife: { name: '刀', type: 'knife', drawTime: 0.7, inspectTime: 5.0, slashDmg: 50, stabDmg: 130, range: 2.5, moveMul: 1.12, pos: [0.185, -0.185, -0.45], rot: [-0.42, 0.62, 0.12] },
+  knife: { name: '刀', en: 'Knife', type: 'knife', drawTime: 0.7, inspectTime: 5.0, slashDmg: 50, stabDmg: 130, range: 2.5, moveMul: 1.12, pos: [0.185, -0.185, -0.45], rot: [-0.42, 0.62, 0.12] },
   awp: {
     name: 'AWP', type: 'gun', auto: false, rpm: 41, dmg: 170, headMul: 2.5, mag: 5, reserve: 20, reloadTime: 3.3, refillAt: 2.0, drawTime: 0.9, inspectTime: 4.6,
     recoilUp: 0.07, recoilSide: 0.01, kick: 0.09, kickRot: 0.12, spread: { base: 0.0, move: 0.06, air: 0.15, shot: 0, max: 0.2, noScope: 0.07 },
@@ -185,7 +190,7 @@ export class WeaponSystem {
   }
   get view() { return this.views[this.cur === 'knife' ? this.game.loadout.knife : this.cur]; }
   get def() { return DEFS[this.cur]; }
-  get displayName() { return this.cur === 'knife' ? KNIFE_NAMES[this.game.loadout.knife] : this.def.name; }
+  get displayName() { return this.cur === 'knife' ? knifeName(this.game.loadout.knife) : nm(this.def); }
 
   equip(id, instant = false) {
     if (!instant && id === this.cur && this.state !== 'holster') return;

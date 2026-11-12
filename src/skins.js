@@ -3,12 +3,12 @@ import * as THREE from 'three';
 import { fbm, voronoi, mulberry32, clamp, lerp } from './util.js';
 
 export const RARITY = [
-  { name: '基础', color: '#9fb2c6' },
-  { name: '军规级', color: '#4b69ff' },
-  { name: '受限', color: '#8847ff' },
-  { name: '保密', color: '#d32ce6' },
-  { name: '隐秘', color: '#eb4b4b' },
-  { name: '★ 罕见', color: '#ffcf40' },
+  { name: '基础', en: 'Base Grade', color: '#9fb2c6' },
+  { name: '军规级', en: 'Mil-Spec', color: '#4b69ff' },
+  { name: '受限', en: 'Restricted', color: '#8847ff' },
+  { name: '保密', en: 'Classified', color: '#d32ce6' },
+  { name: '隐秘', en: 'Covert', color: '#eb4b4b' },
+  { name: '★ 罕见', en: '★ Rare', color: '#ffcf40' },
 ];
 
 const H = (hex) => [parseInt(hex.slice(1, 3), 16) / 255, parseInt(hex.slice(3, 5), 16) / 255, parseInt(hex.slice(5, 7), 16) / 255];
@@ -74,7 +74,7 @@ function dopplerPaint(stops, seed) {
 // 画布 512x128：u 沿刀身（根部→刀尖），v 横向
 export const KNIFE_SKINS = [
   {
-    id: 'vanilla', name: '原版 · 精钢', rarity: 1, metal: 1, rough: 0.26,
+    id: 'vanilla', name: '原版 · 精钢', en: 'Vanilla', rarity: 1, metal: 1, rough: 0.26,
     paint(ctx, w, h) {
       pixels(ctx, w, h, (u, v, o) => {
         const n = fbm(u * 3, v * 90, 3, 1), m = fbm(u * 60, v * 4, 2, 2);
@@ -83,7 +83,7 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'fade', name: '渐变之色', rarity: 5, metal: 1, rough: 0.14, clearcoat: 1,
+    id: 'fade', name: '渐变之色', en: 'Fade', rarity: 5, metal: 1, rough: 0.14, clearcoat: 1,
     paint(ctx, w, h) {
       const st = R([[0, '#f6c12c'], [0.3, '#ff7a3c'], [0.5, '#ff3f8e'], [0.72, '#9b3bff'], [1, '#2f62ff']]);
       pixels(ctx, w, h, (u, v, o) => {
@@ -93,23 +93,23 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'doppler', name: '多普勒', rarity: 5, metal: 1, rough: 0.16, clearcoat: 1,
+    id: 'doppler', name: '多普勒', en: 'Doppler', rarity: 5, metal: 1, rough: 0.16, clearcoat: 1,
     paint: dopplerPaint([[0, '#03040c'], [0.3, '#141a66'], [0.48, '#6a1fb0'], [0.6, '#e21d4f'], [0.74, '#3a1470'], [1, '#04040e']], 11),
   },
   {
-    id: 'gamma', name: '伽玛多普勒', rarity: 5, metal: 1, rough: 0.16, clearcoat: 1,
+    id: 'gamma', name: '伽玛多普勒', en: 'Gamma Doppler', rarity: 5, metal: 1, rough: 0.16, clearcoat: 1,
     paint: dopplerPaint([[0, '#020a05'], [0.3, '#0b4a22'], [0.5, '#1fd066'], [0.62, '#c8ff3a'], [0.76, '#0d5a3a'], [1, '#02100a']], 23),
   },
   {
-    id: 'ruby', name: '红宝石', rarity: 5, metal: 1, rough: 0.12, clearcoat: 1,
+    id: 'ruby', name: '红宝石', en: 'Ruby', rarity: 5, metal: 1, rough: 0.12, clearcoat: 1,
     paint: dopplerPaint([[0, '#1a0006'], [0.35, '#6e0016'], [0.55, '#ff1238'], [0.7, '#ff5a70'], [0.85, '#8a001c'], [1, '#22000a']], 31),
   },
   {
-    id: 'sapphire', name: '蓝宝石', rarity: 5, metal: 1, rough: 0.12, clearcoat: 1,
+    id: 'sapphire', name: '蓝宝石', en: 'Sapphire', rarity: 5, metal: 1, rough: 0.12, clearcoat: 1,
     paint: dopplerPaint([[0, '#00061c'], [0.35, '#04207a'], [0.55, '#1668ff'], [0.7, '#56c4ff'], [0.85, '#0a2c9a'], [1, '#000a22']], 47),
   },
   {
-    id: 'tiger', name: '虎牙', rarity: 4, metal: 1, rough: 0.2, clearcoat: 0.6,
+    id: 'tiger', name: '虎牙', en: 'Tiger Tooth', rarity: 4, metal: 1, rough: 0.2, clearcoat: 0.6,
     paint(ctx, w, h) {
       const base = R([[0, '#ff9d00'], [0.5, '#ffc21a'], [1, '#ffe46a']]);
       const dark = H('#b85400');
@@ -125,7 +125,7 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'web', name: '深红之网', rarity: 4, metal: 0.75, rough: 0.3, clearcoat: 0.5,
+    id: 'web', name: '深红之网', en: 'Crimson Web', rarity: 4, metal: 0.75, rough: 0.3, clearcoat: 0.5,
     paint(ctx, w, h) {
       const rng = mulberry32(77);
       pixels(ctx, w, h, (u, v, o) => {
@@ -155,7 +155,7 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'slaughter', name: '屠夫', rarity: 4, metal: 1, rough: 0.15, clearcoat: 1,
+    id: 'slaughter', name: '屠夫', en: 'Slaughter', rarity: 4, metal: 1, rough: 0.15, clearcoat: 1,
     paint(ctx, w, h) {
       const st = R([[0, '#7a0410'], [0.3, '#d3162a'], [0.5, '#ff5262'], [0.7, '#c20f24'], [1, '#6a020c']]);
       pixels(ctx, w, h, (u, v, o) => {
@@ -167,7 +167,7 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'damascus', name: '大马士革钢', rarity: 3, metal: 1, rough: 0.3,
+    id: 'damascus', name: '大马士革钢', en: 'Damascus Steel', rarity: 3, metal: 1, rough: 0.3,
     paint(ctx, w, h) {
       pixels(ctx, w, h, (u, v, o) => {
         const n = fbm(u * 4, v * 2, 4, 12);
@@ -177,7 +177,7 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'bluesteel', name: '蓝钢', rarity: 2, metal: 1, rough: 0.3,
+    id: 'bluesteel', name: '蓝钢', en: 'Blue Steel', rarity: 2, metal: 1, rough: 0.3,
     paint(ctx, w, h) {
       const st = R([[0, '#0f1622'], [0.4, '#24385a'], [0.7, '#4e6f9c'], [1, '#8fa9c8']]);
       pixels(ctx, w, h, (u, v, o) => { ramp(st, fbm(u * 6, v * 2.5, 4, 14) * 1.3 - 0.1, o); }, 1);
@@ -185,14 +185,14 @@ export const KNIFE_SKINS = [
     },
   },
   {
-    id: 'night', name: '暗夜', rarity: 2, metal: 0.6, rough: 0.5,
+    id: 'night', name: '暗夜', en: 'Night', rarity: 2, metal: 0.6, rough: 0.5,
     paint(ctx, w, h) {
       ctx.fillStyle = '#101216'; ctx.fillRect(0, 0, w, h);
       const rng = mulberry32(9); grain(ctx, w, h, 2500, 0.08, rng); scratches(ctx, w, h, 25, rng, 'rgba(180,190,200,0.2)');
     },
   },
   {
-    id: 'lava', name: '熔岩', rarity: 4, metal: 0.4, rough: 0.55, emissiveIntensity: 3,
+    id: 'lava', name: '熔岩', en: 'Magma', rarity: 4, metal: 0.4, rough: 0.55, emissiveIntensity: 3,
     paint(ctx, w, h) { pixels(ctx, w, h, (u, v, o) => lavaPx(u * 9, v * 2.3, o, false), 1); },
     emissive(ctx, w, h) { pixels(ctx, w, h, (u, v, o) => lavaPx(u * 9, v * 2.3, o, true), 1); },
   },
@@ -210,9 +210,9 @@ function lavaPx(x, y, o, emissive) {
 /* ============================ 枪皮肤 ============================ */
 // 画布 1024x512：u 沿枪身（枪口→枪托），v 自上而下
 export const GUN_SKINS = [
-  { id: 'stock', name: '原厂', rarity: 0, stock: true },
+  { id: 'stock', name: '原厂', en: 'Factory', rarity: 0, stock: true },
   {
-    id: 'redline', name: '红线', rarity: 3, metal: 0.55, rough: 0.38, clearcoat: 0.4,
+    id: 'redline', name: '红线', en: 'Redline', rarity: 3, metal: 0.55, rough: 0.38, clearcoat: 0.4,
     paint(ctx, w, h) {
       ctx.fillStyle = '#0c0d10'; ctx.fillRect(0, 0, w, h);
       // 碳纤维编织
@@ -234,7 +234,7 @@ export const GUN_SKINS = [
     },
   },
   {
-    id: 'agent', name: '星际特工', rarity: 4, metal: 0.25, rough: 0.42, clearcoat: 0.7,
+    id: 'agent', name: '星际特工', en: 'Star Agent', rarity: 4, metal: 0.25, rough: 0.42, clearcoat: 0.7,
     paint(ctx, w, h) {
       const rng = mulberry32(42);
       ctx.fillStyle = '#eceae4'; ctx.fillRect(0, 0, w, h);
@@ -257,12 +257,12 @@ export const GUN_SKINS = [
     },
   },
   {
-    id: 'neon', name: '霓虹幻彩', rarity: 4, metal: 0.5, rough: 0.3, clearcoat: 1, emissiveIntensity: 0.16,
+    id: 'neon', name: '霓虹幻彩', en: 'Neon Prism', rarity: 4, metal: 0.5, rough: 0.3, clearcoat: 1, emissiveIntensity: 0.16,
     paint(ctx, w, h) { neonPaint(ctx, w, h, 1); },
     emissive(ctx, w, h) { neonPaint(ctx, w, h, 0.9); },
   },
   {
-    id: 'dragon', name: '炎龙', rarity: 5, metal: 0.8, rough: 0.3, clearcoat: 0.8,
+    id: 'dragon', name: '炎龙', en: 'Fire Dragon', rarity: 5, metal: 0.8, rough: 0.3, clearcoat: 0.8,
     paint(ctx, w, h) {
       const bg = ctx.createLinearGradient(0, 0, w, h);
       bg.addColorStop(0, '#2a0503'); bg.addColorStop(0.5, '#6e0d05'); bg.addColorStop(1, '#1c0302');
@@ -291,7 +291,7 @@ export const GUN_SKINS = [
     },
   },
   {
-    id: 'gold', name: '黄金时代', rarity: 5, metal: 1, rough: 0.22, clearcoat: 0.3,
+    id: 'gold', name: '黄金时代', en: 'Golden Age', rarity: 5, metal: 1, rough: 0.22, clearcoat: 0.3,
     paint(ctx, w, h) {
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, '#f2c14a'); g.addColorStop(0.5, '#d9a12a'); g.addColorStop(1, '#b8811a');
@@ -316,7 +316,7 @@ export const GUN_SKINS = [
     },
   },
   {
-    id: 'camo', name: '深海迷彩', rarity: 2, metal: 0.3, rough: 0.6,
+    id: 'camo', name: '深海迷彩', en: 'Deep Sea Camo', rarity: 2, metal: 0.3, rough: 0.6,
     paint(ctx, w, h) {
       const cols = ['#0d1b2e', '#16395c', '#2b6a94', '#7fb4cf'];
       const cell = 16;
@@ -328,12 +328,12 @@ export const GUN_SKINS = [
     },
   },
   {
-    id: 'lava', name: '熔岩核心', rarity: 5, metal: 0.35, rough: 0.6, emissiveIntensity: 3.2,
+    id: 'lava', name: '熔岩核心', en: 'Magma Core', rarity: 5, metal: 0.35, rough: 0.6, emissiveIntensity: 3.2,
     paint(ctx, w, h) { pixels(ctx, w, h, (u, v, o) => lavaPx(u * 14, v * 7, o, false), 2); },
     emissive(ctx, w, h) { pixels(ctx, w, h, (u, v, o) => lavaPx(u * 14, v * 7, o, true), 2); },
   },
   {
-    id: 'thunder', name: '紫电', rarity: 4, metal: 0.6, rough: 0.35, clearcoat: 0.6, emissiveIntensity: 2.6,
+    id: 'thunder', name: '紫电', en: 'Violet Bolt', rarity: 4, metal: 0.6, rough: 0.35, clearcoat: 0.6, emissiveIntensity: 2.6,
     paint(ctx, w, h) {
       const g = ctx.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#0b0714'); g.addColorStop(1, '#150a26');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -342,7 +342,7 @@ export const GUN_SKINS = [
     emissive(ctx, w, h) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); bolts(ctx, w, h, '#7a2cff', '#c9a0ff'); },
   },
   {
-    id: 'glacier', name: '冰川', rarity: 3, metal: 0.4, rough: 0.2, clearcoat: 1,
+    id: 'glacier', name: '冰川', en: 'Glacier', rarity: 3, metal: 0.4, rough: 0.2, clearcoat: 1,
     paint(ctx, w, h) {
       const st = R([[0, '#0b2a4a'], [0.35, '#1d6fa8'], [0.6, '#7fd0f0'], [0.85, '#e6faff'], [1, '#ffffff']]);
       pixels(ctx, w, h, (u, v, o) => {

@@ -1,12 +1,14 @@
 // HUD 与菜单
 import * as THREE from 'three';
 import { GUN_SKINS, KNIFE_SKINS, RARITY, skinThumb, findSkin } from './skins.js';
-import { SLOTS, DEFS, KNIFE_NAMES } from './weapons.js';
+import { SLOTS, DEFS, KNIVES, knifeName } from './weapons.js';
 import { clamp } from './util.js';
 import { DIFFICULTY } from './difficulty.js';
+import { t, nm, dsc, setLang, lang } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
-const WEAPON_TABS = [['ak', 'AK-47'], ['deagle', '沙漠之鹰'], ['awp', 'AWP'], ['knife', '近战刀']];
+const WEAPON_TABS = ['ak', 'deagle', 'awp', 'knife'];
+const tabName = (id) => (id === 'knife' ? t('knifeTab') : nm(DEFS[id]));
 
 export class UI {
   constructor(game) {
@@ -14,7 +16,7 @@ export class UI {
     this.el = {};
     for (const id of ['hud', 'menu', 'pause', 'over', 'cross', 'hit', 'vig', 'lowhp', 'dmgdir', 'nums', 'scope', 'wave', 'left', 'score', 'combo', 'boss', 'bossbar', 'bossname',
       'feed', 'banner', 'hp', 'hpbar', 'armor', 'armorbar', 'perkbar', 'wname', 'mag', 'res', 'slots', 'perkpick', 'perkcards', 'wtabs', 'ktabs', 'skins', 'skin-title',
-      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'nades', 'difficulty', 'diff-desc', 'loading', 'hint']) this.el[id] = $(id);
+      'best', 'bestwave', 'stats', 'pick', 'over-title', 'sens', 'sens-v', 'vol', 'vol-v', 'quality', 'nades', 'difficulty', 'lang', 'diff-desc', 'loading', 'hint']) this.el[id] = $(id);
     this.hitT = 0; this.pickT = 0; this.bannerT = 0; this.bannerDur = 1; this.comboT = 0;
     this.arcs = []; this.nums = [];
     for (let i = 0; i < 26; i++) { const d = document.createElement('div'); d.style.display = 'none'; this.el.nums.appendChild(d); this.nums.push({ d, life: 0, p: new THREE.Vector3(), vy: 0 }); }
@@ -39,19 +41,27 @@ export class UI {
     e.sens.oninput = () => { s.sens = +e.sens.value; e['sens-v'].textContent = s.sens.toFixed(2); g.saveSettings(); };
     e.vol.oninput = () => { s.volume = e.vol.value / 100; e['vol-v'].textContent = e.vol.value; g.audio.setVolume(s.volume); g.saveSettings(); };
     e.quality.onchange = () => { s.quality = e.quality.value; g.applyQuality(); g.saveSettings(); };
-    const showDiff = () => { e['diff-desc'].textContent = DIFFICULTY[s.difficulty].desc; };
-    e.difficulty.value = s.difficulty; showDiff();
-    e.difficulty.onchange = () => { s.difficulty = e.difficulty.value; showDiff(); g.saveSettings(); };
+    e.difficulty.value = s.difficulty; this.relabel();
+    e.difficulty.onchange = () => { s.difficulty = e.difficulty.value; this.relabel(); g.saveSettings(); };
+    e.lang.value = lang;
+    e.lang.onchange = () => { s.lang = e.lang.value; setLang(s.lang); g.saveSettings(); this.relabel(); this.buildArmory(); this.setWeapon(g.weapons); };
+  }
+
+  // 切换语言后刷新所有由 JS 生成的文字
+  relabel() {
+    const e = this.el, s = this.game.settings;
+    for (const o of e.difficulty.options) o.textContent = nm(DIFFICULTY[o.value]);
+    e['diff-desc'].textContent = dsc(DIFFICULTY[s.difficulty]);
   }
 
   /* ---------------- 军械库 ---------------- */
   buildArmory() {
     const g = this.game, lo = g.loadout, e = this.el;
     e.wtabs.innerHTML = '';
-    for (const [id, name] of WEAPON_TABS) {
+    for (const id of WEAPON_TABS) {
       const b = document.createElement('button');
-      const skinName = id === 'knife' ? `${KNIFE_NAMES[lo.knife]} · ${findSkin('knife', lo.skins[lo.knife]).name}` : findSkin('gun', lo.skins[id]).name;
-      b.innerHTML = `<span>${name}</span><small>${skinName}</small>`;
+      const skinName = id === 'knife' ? `${knifeName(lo.knife)} · ${nm(findSkin('knife', lo.skins[lo.knife]))}` : nm(findSkin('gun', lo.skins[id]));
+      b.innerHTML = `<span>${tabName(id)}</span><small>${skinName}</small>`;
       if (id === this.tab) b.className = 'on';
       b.onclick = () => { g.audio.init(); g.audio.ui(); this.tab = id; this.buildArmory(); };
       e.wtabs.appendChild(b);
@@ -59,19 +69,19 @@ export class UI {
     e.ktabs.innerHTML = '';
     const isKnife = this.tab === 'knife';
     e.ktabs.style.display = isKnife ? 'flex' : 'none';
-    if (isKnife) for (const [id, name] of Object.entries(KNIFE_NAMES)) {
-      const b = document.createElement('button'); b.textContent = name; if (lo.knife === id) b.className = 'on';
+    if (isKnife) for (const id of Object.keys(KNIVES)) {
+      const b = document.createElement('button'); b.textContent = knifeName(id); if (lo.knife === id) b.className = 'on';
       b.onclick = () => { g.audio.init(); g.audio.equip(); lo.knife = id; g.saveLoadout(); this.buildArmory(); };
       e.ktabs.appendChild(b);
     }
     const modelId = isKnife ? lo.knife : this.tab, kind = isKnife ? 'knife' : 'gun';
     const list = isKnife ? KNIFE_SKINS : GUN_SKINS;
-    e['skin-title'].textContent = `${isKnife ? KNIFE_NAMES[lo.knife] : DEFS[this.tab].name} · 皮肤（${list.length}）`;
+    e['skin-title'].textContent = `${isKnife ? knifeName(lo.knife) : nm(DEFS[this.tab])} · ${t('skins', { n: list.length })}`;
     e.skins.innerHTML = '';
     for (const sk of list) {
-      const d = document.createElement('div'); d.className = 'skin' + (lo.skins[modelId] === sk.id ? ' on' : '');
+      const d = document.createElement('div'); d.className = 'skin' + (lo.skins[modelId] === sk.id ? ' on' : ''); d.dataset.eq = t('equipped');
       const th = skinThumb(kind, sk.id), r = RARITY[sk.rarity];
-      d.innerHTML = `<div class="th${th ? '' : ' stock'}"${th ? ` style="background-image:url(${th})"` : ''}></div><div class="rb" style="background:${r.color}"></div><div class="nm">${sk.name}</div><div class="ra" style="color:${r.color}">${r.name}</div>`;
+      d.innerHTML = `<div class="th${th ? '' : ' stock'}"${th ? ` style="background-image:url(${th})"` : ''}></div><div class="rb" style="background:${r.color}"></div><div class="nm">${nm(sk)}</div><div class="ra" style="color:${r.color}">${nm(r)}</div>`;
       d.onclick = () => { g.audio.init(); g.audio.equip(); lo.skins[modelId] = sk.id; g.saveLoadout(); g.applyLoadout(); this.buildArmory(); };
       e.skins.appendChild(d);
     }
@@ -97,10 +107,10 @@ export class UI {
     const e = this.el, lo = this.game.loadout;
     SLOTS.forEach((id, i) => {
       this.slotEls[i].className = id === ws.cur ? 'on' : '';
-      this.slotEls[i].lastChild.textContent = id === 'knife' ? KNIFE_NAMES[lo.knife] : DEFS[id].name;
+      this.slotEls[i].lastChild.textContent = id === 'knife' ? knifeName(lo.knife) : nm(DEFS[id]);
     });
     const skin = ws.cur === 'knife' ? findSkin('knife', lo.skins[lo.knife]) : findSkin('gun', lo.skins[ws.cur]);
-    e.wname.innerHTML = `${ws.displayName} <span style="color:${RARITY[skin.rarity].color}">| ${skin.name}</span>`;
+    e.wname.innerHTML = `${ws.displayName} <span style="color:${RARITY[skin.rarity].color}">| ${nm(skin)}</span>`;
     if (ws.def.type === 'gun') {
       const a = ws.ammo[ws.cur];
       e.mag.textContent = a.mag; e.res.textContent = '/ ' + a.reserve; e.mag.className = a.mag <= a.max * 0.25 ? 'low' : '';
@@ -115,7 +125,7 @@ export class UI {
     while (this.el.feed.children.length > 6) this.el.feed.firstChild.remove();
     setTimeout(() => d.remove(), 3600);
   }
-  combo(n) { if (n < 2) return; this.el.combo.textContent = `${n} 连杀  ×${(1 + (n - 1) * 0.25).toFixed(2)}`; this.comboT = 2.2; }
+  combo(n) { if (n < 2) return; this.el.combo.textContent = t('combo', { n, m: (1 + (n - 1) * 0.25).toFixed(2) }); this.comboT = 2.2; }
   damageFrom(worldAngle) {
     const d = document.createElement('div'); d.className = 'arc'; this.el.dmgdir.appendChild(d);
     this.arcs.push({ d, a: worldAngle, t: 1.1 });
@@ -131,17 +141,17 @@ export class UI {
   showPerks(options) {
     const e = this.el;
     if (!options) { e.perkpick.classList.add('hidden'); return; }
-    e.perkcards.innerHTML = options.map((p, i) => `<div class="pcard"><span class="key">${i + 1}</span><div class="icon">${p.icon}</div><div class="nm">${p.name}</div><div class="ds">${p.desc}</div><div class="lv">等级 ${p.lv} → ${p.lv + 1}</div></div>`).join('');
+    e.perkcards.innerHTML = options.map((p, i) => `<div class="pcard"><span class="key">${i + 1}</span><div class="icon">${p.icon}</div><div class="nm">${nm(p)}</div><div class="ds">${dsc(p)}</div><div class="lv">${t('perkLevel', { a: p.lv, b: p.lv + 1 })}</div></div>`).join('');
     e.perkpick.classList.remove('hidden');
   }
   pickupFlash(type) { const el = this.el.pick; el.className = type; this.pickT = 0.45; }
   gameOver(st, win) {
     const e = this.el;
-    e['over-title'].textContent = win ? '胜 利' : '阵 亡'; e['over-title'].style.color = win ? '#ffcf40' : '';
+    e['over-title'].textContent = t(win ? 'victory' : 'defeat'); e['over-title'].style.color = win ? '#ffcf40' : '';
     const acc = st.shots ? Math.round((st.hits / st.shots) * 100) : 0;
     e.stats.innerHTML = [
-      ['到达波次', st.wave, st.newWave], ['总得分', st.score, st.newScore], ['击杀', st.kills], ['爆头', st.heads], ['刀杀', st.knifeKills], ['命中率', acc + '%'],
-    ].map(([k, v, rec]) => `<div class="${rec ? 'rec' : ''}">${k}${rec ? ' · 新纪录!' : ''}<b>${v}</b></div>`).join('');
+      [t('stWave'), st.wave, st.newWave], [t('stScore'), st.score, st.newScore], [t('stKills'), st.kills], [t('stHeads'), st.heads], [t('stKnife'), st.knifeKills], [t('stAcc'), acc + '%'],
+    ].map(([k, v, rec]) => `<div class="${rec ? 'rec' : ''}">${k}${rec ? t('newRecord') : ''}<b>${v}</b></div>`).join('');
     this.show('over');
   }
 
@@ -193,6 +203,6 @@ export class UI {
     // Boss 血条
     const boss = g.enemies.list.find((x) => x.T.boss && !x.dead);
     e.boss.classList.toggle('on', !!boss);
-    if (boss) e.bossbar.style.width = clamp(boss.hp / boss.maxHp) * 100 + '%';
+    if (boss) { e.bossbar.style.width = clamp(boss.hp / boss.maxHp) * 100 + '%'; if (this.cache.boss !== lang) { this.cache.boss = lang; e.bossname.textContent = nm(boss.T); } }
   }
 }
