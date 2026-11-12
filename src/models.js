@@ -494,4 +494,41 @@ export function buildButterfly() {
   return k;
 }
 
-export const BUILDERS = { ak: buildAK, deagle: buildDeagle, awp: buildAWP, butterfly: buildButterfly, karambit: buildKarambit, m9: buildM9 };
+/* ---------------- 折叠刀 Flip Knife ---------------- */
+// 刀身绕轴销（原点）转动：parts.fold.rotation.z = 0 展开，= PI 收进两片刀柄之间
+export function buildFlip() {
+  const M = materials();
+  const S = pathFn([[0.62, line([0.012, 0.004], [0.012, 0.072])], [1, (t) => bez([0.012, 0.072], [0.011, 0.098], [-0.0015, 0.116], t)]]);
+  const E = pathFn([[0.5, line([-0.0115, 0.008], [-0.0115, 0.06])], [1, (t) => bez([-0.0115, 0.06], [-0.0118, 0.1], [-0.0015, 0.116], t)]]);
+  const blade = bladeMeshOf(loftBlade(S, E, { thick: 0.0036, grind: 0.45, n: 44 }));
+  // 刀根 + 开刀孔
+  const B = new Parts();
+  B.add('steel', rbox(0.023, 0.016, 0.0036, 0.0012), [0.0005, -0.001, 0]);
+  B.add('dark', cylZ(0.0042, 0.0042, 16), [0.004, 0.022, 0]);
+  const fold = new THREE.Group();
+  fold.add(blade, B.mesh('steel', M.steel), B.mesh('dark', M.black));
+  // 两片刀柄夹出刀槽
+  const H = new Parts();
+  const sh = new THREE.Shape();
+  sh.moveTo(-0.0125, 0.006);
+  sh.quadraticCurveTo(0.0005, 0.016, 0.013, 0.006);
+  sh.lineTo(0.013, -0.04);
+  sh.quadraticCurveTo(0.0145, -0.085, 0.011, -0.116);
+  sh.quadraticCurveTo(0.0, -0.124, -0.0105, -0.116);
+  sh.quadraticCurveTo(-0.0145, -0.07, -0.0105, -0.045);
+  sh.quadraticCurveTo(-0.0085, -0.03, -0.0125, -0.018);
+  sh.closePath();
+  for (const z of [-0.0042, 0.0042]) H.add('scale', extrudeXY(sh, 0.0044, 0.0012, 2), [0, 0, z]);
+  H.add('dark', box(0.0016, 0.1, 0.0046), [-0.0118, -0.064, 0]);                 // 背条
+  H.add('steel', cylZ(0.0055, 0.0136, 18), [0, 0, 0]);                             // 轴销
+  H.add('steel', cylZ(0.0024, 0.0134, 10), [0.002, -0.108, 0]);                    // 尾销
+  for (const y of [-0.04, -0.075]) H.add('steel', cylZ(0.0018, 0.0134, 8), [0.006, y, 0]);
+  H.add('steel', rbox(0.0045, 0.065, 0.0016, 0.0007), [0.0045, -0.065, 0.0072]);  // 背夹
+  const group = new THREE.Group();
+  group.add(H.mesh('scale', M.g10), H.mesh('dark', M.black), H.mesh('steel', M.steel), fold);
+  const k = finishKnife(group, blade, { type: 'flip', gripY: -0.058 });
+  k.parts = { fold };
+  return k;
+}
+
+export const BUILDERS = { ak: buildAK, deagle: buildDeagle, awp: buildAWP, butterfly: buildButterfly, karambit: buildKarambit, m9: buildM9, flip: buildFlip };

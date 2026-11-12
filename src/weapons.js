@@ -4,7 +4,8 @@ import { BUILDERS, buildHand, KARAMBIT_RING, BFLY_PIN } from './models.js';
 import { kf, kfv, clamp, lerp, damp, rand, smooth, easeOut, easeOutBack, PI, TAU } from './util.js';
 
 export const SLOTS = ['ak', 'deagle', 'knife', 'awp'];
-export const KNIFE_NAMES = { butterfly: '蝴蝶刀', karambit: '爪子刀', m9: 'M9 刺刀' };
+export const KNIFE_NAMES = { butterfly: '蝴蝶刀', karambit: '爪子刀', m9: 'M9 刺刀', flip: '折叠刀' };
+export const KNIFE_IDS = Object.keys(KNIFE_NAMES);
 export const DEFS = {
   ak: {
     name: 'AK-47', type: 'gun', auto: true, rpm: 600, dmg: 34, headMul: 4, mag: 30, reserve: 120, reloadTime: 2.4, refillAt: 1.35, drawTime: 0.6, inspectTime: 4.4,
@@ -50,7 +51,7 @@ const HOOK = [ // 爪子刀重击：举起 → 向下钩扎
   [0, KB], [0.17, [0.2, 0.0, -0.38, 0.2, 0.5, 0.1]], [0.29, [0.07, -0.2, -0.6, -0.9, 0.3, 0.3], acc],
   [0.52, [0.06, -0.23, -0.58, -0.95, 0.3, 0.3], dec], [1, KB],
 ];
-const SLASH_HIT = 0.2, HEAVY_HIT = { m9: 0.27, butterfly: 0.27, karambit: 0.29 };
+const SLASH_HIT = 0.2, HEAVY_HIT = { m9: 0.27, butterfly: 0.27, karambit: 0.29, flip: 0.27 };
 // 检视展示：前臂基本不动，靠翻腕（绕前臂轴旋转）依次亮出刀的两面
 const KNIFE_ARM = [0.12, -0.45, 0.4]; // 持刀前臂末端（肘部方向）
 const FOREARM = new THREE.Vector3(KNIFE_ARM[0] - 0.022, KNIFE_ARM[1] + 0.018, KNIFE_ARM[2] - 0.045).normalize();
@@ -163,7 +164,7 @@ export class WeaponSystem {
       l: buildHand({ pos: [0, -0.012, -0.22], basis: leftBasis, armTo: [-0.3, -0.36, 0.3], scale: 1.34 }),
     });
     // 刀：握拳在 holder 原点，刀模型旋转成「刀身平面 = 视线 YZ 平面」
-    for (const id of ['butterfly', 'karambit', 'm9']) {
+    for (const id of KNIFE_IDS) {
       const model = BUILDERS[id]();
       const mount = new THREE.Group(); mount.rotation.y = -PI / 2;
       const spin = new THREE.Group(); mount.add(spin);
@@ -180,7 +181,7 @@ export class WeaponSystem {
 
   setLoadout(lo) {
     this.views.ak.model.setSkin(lo.skins.ak); this.views.deagle.model.setSkin(lo.skins.deagle); this.views.awp.model.setSkin(lo.skins.awp);
-    for (const id of ['butterfly', 'karambit', 'm9']) this.views[id].model.setSkin(lo.skins[id]);
+    for (const id of KNIFE_IDS) this.views[id].model.setSkin(lo.skins[id]);
   }
   get view() { return this.views[this.cur === 'knife' ? this.game.loadout.knife : this.cur]; }
   get def() { return DEFS[this.cur]; }
@@ -199,6 +200,7 @@ export class WeaponSystem {
       const k = this.game.loadout.knife;
       if (k === 'butterfly') { this.ev(0.1, () => a.click(0, 1.3, 0.5)); this.ev(0.3, () => a.click(0, 1.5, 0.6)); this.ev(0.48, () => { a.click(0, 1.1, 0.7); a.shing(0, 0.7); }); }
       else if (k === 'karambit') { this.ev(0.08, () => a.swish(false)); this.ev(0.45, () => a.shing(0, 0.6)); }
+      else if (k === 'flip') { this.ev(0.16, () => a.click(0, 1.2, 0.5)); this.ev(0.3, () => { a.click(0, 0.9, 0.8); a.shing(0, 0.8); }); }
       else this.ev(0.25, () => a.shing(0, 0.8));
     } else if (id === 'awp') this.ev(0.5, () => a.click(0, 0.8, 0.5)); else this.ev(0.3, () => a.click(0, 0.9, 0.5));
     this.game.ui.setWeapon(this);
@@ -219,6 +221,7 @@ export class WeaponSystem {
       const k = this.game.loadout.knife, T = DEFS.knife.inspectTime;
       if (k === 'butterfly') { [0.05, 0.12, 0.2, 0.28, 0.36, 0.42].forEach((f, i) => this.ev(f * T, () => { a.click(0, 1.1 + (i % 3) * 0.2, 0.6); if (i === 5) a.shing(0, 0.6); })); this.ev(0.72 * T, () => a.swish(false)); }
       else if (k === 'karambit') { [0.07, 0.11, 0.16, 0.22, 0.29].forEach((f) => this.ev(f * T, () => a.swish(false))); this.ev(0.46 * T, () => a.click(0, 0.9, 0.5)); this.ev(0.74 * T, () => a.swish(false)); }
+      else if (k === 'flip') { [[0.1, 1.3], [0.33, 1.3]].forEach(([f, p]) => this.ev(f * T, () => a.click(0, p, 0.6))); [0.19, 0.41].forEach((f) => this.ev(f * T, () => { a.click(0, 0.9, 0.8); a.shing(0, 0.7); })); this.ev(0.72 * T, () => a.swish(false)); }
       else { this.ev(0.33 * T, () => a.swish(false)); this.ev(0.75 * T, () => a.swish(false)); this.ev(0.95 * T, () => { a.click(0, 0.8, 0.6); a.shing(0, 0.5); }); }
     } else { this.ev(0.4, () => a.click(0, 0.7, 0.3)); this.ev(this.def.inspectTime * 0.5, () => a.click(0, 0.8, 0.3)); }
   }
@@ -455,7 +458,7 @@ export class WeaponSystem {
 
   _animKnife(v, d, A, T) {
     const t = this.t, id = v.id, P = v.model.parts;
-    let b1 = 0, b2 = 0, spin = 0, ringK = 0, tossRot = 0, tossY = 0; // 蝴蝶刀两个角度；爪子刀转刀；M9 抛刀
+    let b1 = 0, b2 = 0, spin = 0, ringK = 0, tossRot = 0, tossY = 0, fold = 0; // 蝴蝶刀两个角度；爪子刀转刀；M9 抛刀
     if (this.state === 'draw') {
       const u = clamp(t / d.drawTime), k = 1 - easeOut(u);
       A[1] -= 0.25 * k; A[3] += 0.8 * k; A[5] -= 0.4 * k;
@@ -469,6 +472,10 @@ export class WeaponSystem {
       } else if (id === 'karambit') {
         spin = kf(u, [[0, -TAU * 2], [0.62, 0, dec]]);
         ringK = kf(u, [[0, 1], [0.6, 1], [0.9, 0]]);
+      } else if (id === 'flip') {
+        // 拔出时刀身合着，拇指一推甩开到位
+        fold = kf(u, [[0, PI], [0.22, PI], [0.42, -0.14, dec], [0.52, 0.05], [0.6, 0]]);
+        A[5] += kf(u, [[0.2, 0], [0.36, 0.35], [0.6, 0]]);
       } else { A[4] -= 1.2 * k; A[5] += 0.6 * k; }
     } else if (this.state === 'inspect') {
       const u = t / d.inspectTime;
@@ -489,6 +496,14 @@ export class WeaponSystem {
         const wr = kf(u, [[0, 0], [0.07, 1], [0.42, 1], [0.5, 0]]);
         A[0] -= 0.06 * wr; A[1] += 0.03 * wr + Math.sin(u * 70) * 0.004 * wr; A[2] += 0.02 * wr; A[3] += 0.22 * wr; A[4] -= 0.3 * wr;
         if (u > 0.48) this._show((u - 0.48) / 0.52, A);
+      } else if (id === 'flip') {
+        // 折叠刀：合刀 → 手腕一抖甩开，连做两次，然后翻腕展示
+        fold = kf(u, [[0.03, 0], [0.1, PI, acc], [0.14, PI], [0.19, -0.16, dec], [0.215, 0.06], [0.24, 0],
+          [0.26, 0], [0.33, PI, acc], [0.36, PI], [0.41, -0.16, dec], [0.435, 0.06], [0.46, 0]]);
+        const wr = kf(u, [[0, 0], [0.05, 1], [0.44, 1], [0.5, 0]]);
+        const snap = kf(u, [[0.15, 0], [0.18, 1], [0.24, 0], [0.37, 0], [0.4, 1], [0.46, 0]]);
+        A[0] -= 0.06 * wr; A[1] += 0.035 * wr; A[2] += 0.03 * wr; A[3] += 0.2 * wr; A[4] += 0.35 * wr; A[5] += 0.3 * snap - 0.1 * wr;
+        if (u > 0.48) this._show((u - 0.48) / 0.52, A);
       } else {
         // M9：先展示两面，收势时向上抛一圈接住
         if (u < 0.74) this._show(u / 0.74, A);
@@ -504,6 +519,7 @@ export class WeaponSystem {
     }
     if (P.bladePivot) { P.bladePivot.rotation.z = b1; P.handleBPivot.rotation.z = b2; }
     v.toss.rotation.x = tossRot; v.toss.position.y = tossY;
+    if (P.fold) P.fold.rotation.z = fold;
     if (id === 'karambit') {
       // 转刀时把刀立成「螺旋桨」：刀身平面正对指节，指环位于指节前方
       v.spin.rotation.z = spin;
