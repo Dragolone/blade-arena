@@ -22,7 +22,7 @@ If the game stutters, lower the quality setting (**画质**) at the bottom of th
 
 ## Features
 
-- **Three knives**: Butterfly Knife, Karambit and M9 Bayonet, each with its own draw, slash, heavy attack and inspect animation
+- **Four knives**: Butterfly Knife, Karambit, M9 Bayonet and Flip Knife, each with its own draw, slash, heavy attack and inspect animation
 - **Three guns**: AK-47 (full auto), Desert Eagle, and AWP (scoped, pierces multiple enemies)
 - **Skins**: 10 for guns and 13 for knives. Preview and equip them in the armory on the main menu; your choice is saved automatically
 - **Lighting**: low sunset sun with real-time soft shadows, bloom, neon and street lamps, and environment reflections on metal. Step into shade and the weapon in your hands darkens too

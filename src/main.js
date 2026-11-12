@@ -10,7 +10,7 @@ import { World } from './world.js';
 import { FX } from './fx.js';
 import { AudioSys } from './audio.js';
 import { Player } from './player.js';
-import { WeaponSystem, SLOTS, DEFS, KNIFE_NAMES } from './weapons.js';
+import { WeaponSystem, SLOTS, DEFS, KNIFE_NAMES, KNIFE_IDS } from './weapons.js';
 import { Enemies, ENEMY_TYPES } from './enemies.js';
 import { UI } from './ui.js';
 import { DIFFICULTY } from './difficulty.js';
@@ -32,7 +32,7 @@ const PERKS = [
   { id: 'speed', icon: '👟', name: '肾上腺素', desc: '移动速度 +8%', max: 3 },
   { id: 'boom', icon: '🧨', name: '连锁爆破', desc: '被击杀的敌人有 25% 几率爆炸', max: 3 },
 ];
-const KNIVES = ['butterfly', 'karambit', 'm9'];
+const KNIVES = KNIFE_IDS;
 
 // 第一人称武器层：清深度后叠加渲染到同一缓冲
 class ViewModelPass extends Pass {
@@ -56,7 +56,7 @@ class Game {
     if (!DIFFICULTY[this.settings.difficulty]) this.settings.difficulty = 'casual';
     this.diff = DIFFICULTY[this.settings.difficulty];
     const lo = load('ba_loadout', {});
-    this.loadout = { knife: lo.knife || 'butterfly', skins: Object.assign({ ak: 'redline', deagle: 'gold', awp: 'dragon', butterfly: 'fade', karambit: 'doppler', m9: 'tiger' }, lo.skins || {}) };
+    this.loadout = { knife: lo.knife || 'butterfly', skins: Object.assign({ ak: 'redline', deagle: 'gold', awp: 'dragon', butterfly: 'fade', karambit: 'doppler', m9: 'tiger', flip: 'sapphire' }, lo.skins || {}) };
     this.best = load('ba_best', { score: 0, wave: 0 });
     this.perks = {};
     this.state = 'menu'; this.time = 0; this.wave = 0; this.spawnQueue = []; this.spawnT = 0; this.timers = [];
