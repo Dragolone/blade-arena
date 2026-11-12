@@ -14,6 +14,7 @@ import { WeaponSystem, SLOTS, DEFS, KNIFE_NAMES } from './weapons.js';
 import { Enemies, ENEMY_TYPES } from './enemies.js';
 import { UI } from './ui.js';
 import { DIFFICULTY } from './difficulty.js';
+import { Grenades } from './grenade.js';
 import { Showcase } from './showcase.js';
 import { clamp, rand, pick } from './util.js';
 
@@ -80,6 +81,7 @@ class Game {
     this.weapons = new WeaponSystem(this);
     this.enemies = new Enemies(this);
     this.showcase = new Showcase(this);
+    this.grenades = new Grenades(this);
     this._buildPickups();
 
     // ---- 后期 ----
@@ -139,6 +141,7 @@ class Game {
       else if (e.code === 'KeyR') ws.reload();
       else if (e.code === 'KeyF') ws.inspect();
       else if (e.code === 'KeyV') this.cycleKnife();
+      else if (e.code === 'KeyG') this.grenades.throw();
     });
     addEventListener('keyup', (e) => { inp.keys[e.code] = false; });
     addEventListener('blur', () => { inp.keys = {}; inp.lmb = inp.rmb = false; });
@@ -176,7 +179,7 @@ class Game {
   resume() { if (this.debug) { this.state = 'playing'; this.ui.show('hud'); return; } this.lock(); }
   toMenu() {
     this.state = 'menu'; if (document.pointerLockElement) document.exitPointerLock();
-    this.enemies.clear(); this.clearPickups(); this.ui.showPerks(null); this.perkOptions = null;
+    this.enemies.clear(); this.clearPickups(); this.grenades.reset(); this.ui.showPerks(null); this.perkOptions = null;
     this.ui.show('menu');
   }
   cycleKnife() {
@@ -200,7 +203,7 @@ class Game {
     const D = (this.diff = DIFFICULTY[this.settings.difficulty]);
     this.perks = {}; if (D.maxPerks) for (const p of PERKS) this.perks[p.id] = p.max; // 爽玩：所有强化开局即满级
     this.ui.setPerks(this.perks, PERKS); this.ui.showPerks(null); this.perkOptions = null; this.won = false;
-    this.player.reset(); this.player.maxHp = D.hp + 250 * (this.perks.hp || 0); this.player.hp = this.player.maxHp; this.weapons.resetAmmo(); this.weapons.equip('ak', true);
+    this.player.reset(); this.player.maxHp = D.hp + 250 * (this.perks.hp || 0); this.player.hp = this.player.maxHp; this.weapons.resetAmmo(); this.weapons.equip('ak', true); this.grenades.reset();
     this.stats = { score: 0, kills: 0, heads: 0, knifeKills: 0, shots: 0, hits: 0, wave: 0 };
     this.wave = 0; this.combo = 0; this.spawnQueue = []; this.world.resetBarrels();
     this.state = 'playing'; this.ui.show('hud'); this.ui.cache = {};
@@ -213,7 +216,7 @@ class Game {
   nextWave() {
     if (this.state === 'menu' || this.state === 'over') return;
     const n = ++this.wave; this.stats.wave = n;
-    this.world.resetBarrels(); this.weapons.refill(); this.ui.setWeapon(this.weapons);
+    this.world.resetBarrels(); this.weapons.refill(); this.ui.setWeapon(this.weapons); this.grenades.refill();
     if (this.perks.armor) this.player.armor = Math.min(300, this.player.armor + 150 * this.perks.armor);
     const q = [];
     const boss = n % 5 === 0;
@@ -355,8 +358,8 @@ class Game {
     }
     return false;
   }
-  explodeAt(x, z, radius, dmg, hurtPlayer, scale = 1) {
-    this.fx.explosion(x, 0.5, z, scale); this.sfx3d('explosion', x, 0.5, z);
+  explodeAt(x, z, radius, dmg, hurtPlayer, scale = 1, y = 0) {
+    this.fx.explosion(x, y + 0.5, z, scale); this.sfx3d('explosion', x, y + 0.5, z);
     const pl = this.player, dp = Math.hypot(pl.pos.x - x, pl.pos.z - z);
     this.shake(clamp(0.6 - dp / 30, 0, 0.6));
     if (hurtPlayer && dp < radius * 0.8 && Math.abs(pl.pos.y) < 3) pl.damage(55 * (1 - dp / (radius * 0.8)), x, z);
@@ -483,7 +486,7 @@ class Game {
     if (!pl.dead) pl.look(inp.dx, inp.dy, sens);
     pl.update(dt, inp);
     // 武器
-    if (!pl.dead) { ws.primary(inp.lmbP, inp.lmb); ws.secondary(inp.rmbP); }
+    if (!pl.dead && !this.grenades.busy) { ws.primary(inp.lmbP, inp.lmb); ws.secondary(inp.rmbP); }
     const sp = ws.def.spread;
     ws.spreadNow = sp ? sp.base + clamp(pl.speed2d / 6) * sp.move + (pl.onGround ? 0 : sp.air) + Math.min(sp.max, ws.shots * sp.shot) + (ws.def.scope && !ws.scoped ? sp.noScope : 0) : 0;
     ws.update(dt, inp);
@@ -499,6 +502,7 @@ class Game {
       } else if (this.enemies.alive === 0) this._waveCleared();
     }
     this.enemies.update(dt);
+    this.grenades.update(dt);
     this._updatePickups(dt);
     this.world.update(dt, this.camera.position);
     this.fx.update(dt, innerHeight, this.camera.fov, this.time);

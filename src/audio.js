@@ -94,5 +94,6 @@ export class AudioSys {
   explosion(v, pan) { this.nz(1.1, 'lowpass', 2200, 50, 1.5 * v, { pan, wet: 1 }); this.tone(0.7, 'sine', 85, 26, 0.9 * v, { pan }); this.nz(0.1, 'highpass', 2500, 1200, 0.5 * v, { pan }); }
   slam(v) { this.tone(0.5, 'sine', 70, 28, 0.9 * v); this.nz(0.5, 'lowpass', 600, 60, 0.9 * v, { wet: 0.8 }); }
   charge(v, pan) { this.tone(0.35, 'sawtooth', 300, 1400, 0.09 * v, { pan, attack: 0.2 }); }
+  grenadeBounce(v, pan) { this.tone(0.12, 'triangle', 1500, 1100, 0.18 * v, { pan, wet: 0.3 }); this.nz(0.05, 'bandpass', 2600, 1800, 0.25 * v, { pan, q: 3 }); }
   ricochet(pan) { const f = rand(2200, 4200); this.tone(0.22, 'sine', f, f * 0.55, 0.06, { pan, wet: 0.4 }); }
 }

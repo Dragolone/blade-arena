@@ -26,6 +26,7 @@ If the game stutters, lower the quality setting (**画质**) at the bottom of th
 - **Three guns**: AK-47 (full auto), Desert Eagle, and AWP (scoped, pierces multiple enemies)
 - **Skins**: 10 for guns and 13 for knives. Preview and equip them in the armory on the main menu; your choice is saved automatically
 - **Lighting**: low sunset sun with real-time soft shadows, bloom, neon and street lamps, and environment reflections on metal. Step into shade and the weapon in your hands darkens too
+- **Grenades**: press `G` for a quick throw. Three per wave; they bounce off walls and the floor and go off after 1.7 s
 - **Enemies**: robot infantry, rushers and heavies, with a boss on wave 5
 - **Also**: explosive barrels, pickups that fly to you, kill-streak multipliers, and bonus score for headshots, knife kills and backstabs
 
@@ -38,6 +39,7 @@ If the game stutters, lower the quality setting (**画质**) at the bottom of th
 | Left mouse | Fire. With a knife: horizontal slash (hold to chain forehand and backhand) |
 | Right mouse | AWP scope. With a knife: heavy attack (from behind it is an instant-kill backstab) |
 | `R` / `F` | Reload / inspect weapon |
+| `G` | Throw a grenade (3 per wave, refilled at the start of each wave) |
 | `1` `2` `3` `4`, mouse wheel, `Q` | AK-47 / Desert Eagle / knife / AWP. `Q` switches back to the previous weapon |
 | `V` | Cycle knife type during a match |
 | `Esc` | Pause |
@@ -73,6 +75,7 @@ src/
   models.js    procedural guns, knives and arms
   skins.js     skin textures
   enemies.js   enemy AI, energy bolts, boss
+  grenade.js   grenade throw animation, bounce physics, fuse
   fx.js        particles, tracers, bullet holes, explosions
   audio.js     sound synthesis
   ui.js        HUD and menus

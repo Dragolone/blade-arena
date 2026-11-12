@@ -70,6 +70,9 @@ button.big:hover { filter: brightness(1.12); transform: translateY(-1px); }
 #perkbar span { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; text-shadow: none; }
 #perkbar span i { font-style: normal; color: var(--amber); margin-left: 3px; font-weight: 700; }
 #ammobox { position: absolute; right: 24px; bottom: 22px; text-align: right; }
+#nades { margin-top: 4px; display: flex; justify-content: flex-end; gap: 5px; align-items: center; font-size: 12px; opacity: 0.85; }
+#nades i { width: 11px; height: 14px; border-radius: 45% 45% 50% 50%; background: #6b7d4f; box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.35); display: inline-block; }
+#nades i.off { opacity: 0.2; }
 #wname { font-size: 14px; opacity: 0.85; letter-spacing: 2px; }
 #mag { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; } #mag.low { color: var(--red); }
 #res { font-size: 20px; opacity: 0.7; margin-left: 8px; }
